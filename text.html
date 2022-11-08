@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leaflet 加载</title>
+    <link rel="stylesheet" href="./css/leaflet.css">
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="./js/leaflet.js"></script>
+<script src="../leaflet/dist/leaflet-ant-path.js"></script>
+
+<script>
+    var url = "http://173.80.4.334:3333/{z}/{x}/{y}.png";
+    //z表示地图的缩放级别
+    //x表示地图瓦片的横向坐标
+    //y表示地图瓦片的纵向坐标
+    //其中的路径就是保存地图瓦片的的路径
+    var tilemap = new L.TileLayer(url);
+    //加载地图的底层对象
+    var mapcenter = new L.latLng(39.5,116.89);
+    //地图的中心点的对象
+    //创建一个地图对象Map，将地图瓦片等对象添加进这个对象：
+
+    var map = new L.Map("map", {    //"map"为需要插入地图的div的id
+                CRS:'Simple',   //离线地图加载规则
+                center:mapcenter,   //地图中心点
+                zoom: 7,           //默认展示的缩放级别
+                layers: [tilemap],  //插入的地图的图层
+                minZoom: 0,         //最小缩放级别
+                maxZoom: 11,        //最大缩放级别
+                opacity: 0.1,       //图层的不透明度
+            });
+
+            var _viewSpotLayer=new L.featureGroup([]);
+            map.addLayer(_viewSpotLayer);
+            var pointFeature = new L.marker([39.905,116.399]).addTo(_viewSpotLayer);
+
+
+            var lineArr=[[39.920969009399414, 116.38572692871094],[40.91101264953613,116.6862419128418],[41.91161346435547, 117.39636993408203],[42.9217414855957,117.5057691192627],[43.9213981628418, 116.99589859008789]];
+            var line =new L.polyline(lineArr,{color:'red',opacity:'0.8',weight:'3'}).addTo(_viewSpotLayer);
+
+            var longLatList =[[9.920969009399414, 116.38572692871094],[40.91101264953613,116.6862419128418]];//经纬度数组
+                        var antPath = L.polyline.antPath;
+                        gPath = antPath(longLatList, {
+                            "paused": false,   　　//暂停  初始化状态
+                            "reverse": false,　　//方向反转
+                            "delay": 3000,　　　　//延迟，数值越大效果越缓慢
+                            "dashArray": [10, 20],　//间隔样式
+                            "weight": 3,　　　　//线宽
+                            "opacity": 0.5,　　//透明度
+                            //"color": "#0000FF",　//颜色
+                            //"pulseColor": "#FFFFFF"　　//块颜色
+                        });
+                        gPath.addTo(_viewSpotLayer); 
+
+    
+</script>
+</body>
+</html>

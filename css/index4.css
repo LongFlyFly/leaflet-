@@ -1,0 +1,69 @@
+#map {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    overflow: hidden;
+}
+.control{
+    top: 100px;
+	position: absolute;
+	width: 20%;
+	height: 300px;
+	z-index: 20 !important;
+	background-color: rgba(192, 192, 192, 0.7);
+	text-align: center;
+}
+#startTime, #endTime{
+    position: relative;
+}
+#startTime::-webkit-calendar-picker-indicator,
+#endTime::-webkit-calendar-picker-indicator{
+    position: absolute;
+    right: 0;
+    padding-left: calc(100% - 40px); 
+    padding-right: 10px; 
+}
+.form-control{
+    width: 100px;
+}
+#main{
+        overflow: auto;
+        text-align: center;
+    }
+a{
+    text-decoration: none;
+    display: inline-block;
+    height: 40px;
+    width: 100px;
+    color: white;
+    background-color: darkgray;
+    line-height: 40px;
+}
+    ul{
+        list-style: none;
+     }
+
+    #list{
+            display: inline-block;
+            margin: 0px;
+            padding: 0px;
+            vertical-align: bottom;
+        }
+
+    #list>li{
+            float: left;
+    }
+
+    #list>li>ul{
+        display: none;
+        position: absolute;
+    }
+
+    #list>li:hover ul{
+        display: block;
+    }
+    a:hover {
+        background-color: burlywood;
+    }

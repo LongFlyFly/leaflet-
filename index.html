@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="./css/leaflet.css"/>
+    <script src="./js/leaflet.js"></script>
+    <script type="text/javascript" src="./js/MovingMarker.js"></script>
+
+   <style>
+#map { 
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 600px; 
+    z-index: 2;
+    overflow: hidden;
+}
+.control{
+      top: 250px;
+      position: absolute;
+      width: 20%;
+      height: 300px;
+      z-index: 20 !important;
+      background-color: rgba(0, 251, 255, 0.7);
+      text-align: center;
+}
+#startTime, #endTime{
+    position: relative;
+}
+#startTime::-webkit-calendar-picker-indicator,
+#endTime::-webkit-calendar-picker-indicator{
+    position: absolute;
+    right: 0;
+    padding-left: calc(100% - 40px); 
+    padding-right: 10px; 
+}
+.form-control{
+    width: 100px;
+}
+.logo{
+  width: 200px;
+  height: 100px;
+}
+.header{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 50px;
+  background-color: rgb(233, 233, 233);
+  z-index: 5;
+}
+img{
+  width: 200px;
+  height: 50px;
+}
+h1{
+  margin-top: 0px;
+  line-height: 50px;
+}
+</style>
+
+</head>
+<body>
+  <div class="header">
+     <img src="./image/logo.jpg" alt="">
+     <h1>轨迹分段系统</h1>
+     <select id="list">
+      <option>未选择</option>
+      <option>北京</option>
+      <option>重庆</option>
+    </select>
+  </div>
+
+    <div id="map"></div>
+
+    <div class="control">
+      出发地：<input  placeholder="请输入起点"  /><br>
+      目的地：<input  placeholder="请输入终点" /><br>
+      <button type="primary">路径</button><br>
+      驻流点：<input  placeholder="请输入驻流点"  /><br>
+      时间阈值：<input  placeholder="请输入时间阈值"  /><br>
+      距离阈值：<input  placeholder="请输入距离阈值"  /><br>
+      <button type="primary">开始</button><br>
+
+      <div class="form-group input-group-sm">
+          <label for="exampleInputEmail1">开始时间</label>
+          <input type="date" class="form-control" id="startTime" placeholder="开始时间">
+      </div><br>    
+      
+      <div class="form-group input-group-sm">
+          <label for="exampleInputPassword1">结束时间</label>
+          <input type="date" class="form-control" id="endTime" placeholder="结束时间">
+      </div><br>
+
+      回放显示: <input type="checkbox" name="running" checked>时间
+               <input type="checkbox" name="reading" checked>里程
+               <input type="checkbox" name="shopping" checked>速度
+
+  </div>
+
+</body>
+ 
+<script>
+    // 获取展示
+    var map = L.map('map').setView([39.5427, 116.2317], 13);
+    // 地图链接
+    L.tileLayer('http://wprd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}', {
+         maxZoom: 18
+      }).addTo(map);
+
+  var parisKievLL = [
+    [39.5427, 116.2317],
+    [39.9, 116.17]
+];
+
+// 第一个圈
+var circle = L.circle([39.5427,116.2317], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 500000
+ }).addTo(map);
+
+var londonParisRomeBerlinBucarest = [
+    [39.5427,116.2317],
+    [38.9927, 116.2317],
+    [39.3427, 117.0017],
+    [38.1227, 118.0217],
+    [39.3227, 117.2317]
+];
+var londonBrusselFrankfurtAmsterdamLondon = [
+    [39.5427, 116.2317],
+    [38.9927, 116.237],
+    [37.3427, 115.2317],
+    [38.1227, 116.2317],
+    [35.3227, 117.217]
+];
+var barcelonePerpignanPauBordeauxMarseilleMonaco1 = [
+    [39.5427, 116.2317],
+    [38.9927, 115.2317],
+    [39.3427, 116.27],
+    [38.1227, 118.2317],
+    [40.3227, 117.217]
+];
+
+var barcelonePerpignanPauBordeauxMarseilleMonaco2 = [
+    [39.5427, 116.2317],
+    [38.9927, 117.2317],
+    [39.7427, 117.0237],
+    [38.1227, 116.217],
+    [39.3227, 118.1217]
+];
+
+var barcelonePerpignanPauBordeauxMarseilleMonaco3 = [
+    [39.5427, 116.2317],
+    [38.9927, 117.5317],
+    [39.3427, 117.0237],
+    [38.1227, 116.217],
+    [40.3227, 114.1217]
+];
+
+
+var barcelonePerpignanPauBordeauxMarseilleMonaco4 = [
+    [40.3227, 114.1217],
+    [36.9927, 114.5317],
+    [37.3427, 116.0237],
+    [38.1227, 113.217],
+    [41.5427, 116.2317]
+];
+
+var barcelonePerpignanPauBordeauxMarseilleMonaco5 = [
+    [39.5427, 116.2317],
+    [38.9927, 118.5317],
+    [36.327, 119.0237],
+    [40.1227, 113.17],
+    [41.547, 116.217]
+];
+
+var barcelonePerpignanPauBordeauxMarseilleMonaco6 = [
+    [39.5427, 116.2317],
+    [39.9927, 118.2317],
+    [40.747,  118.37],
+    [40.1, 115.27],
+    [41.227, 117.117]
+];
+
+
+map.fitBounds(londonParisRomeBerlinBucarest);
+
+var marker = L.Marker.movingMarker(
+    londonBrusselFrankfurtAmsterdamLondon,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+    marker.addStation(1, 2000);
+    marker.addStation(2, 2000);
+    marker.addStation(3, 2000);
+    marker.addStation(4, 2000);
+
+L.polyline(londonBrusselFrankfurtAmsterdamLondon, {
+    color: 'blue'
+}).addTo(map);
+
+var marker1 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco1,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+        marker1.addStation(1, 2000);
+        marker1.addStation(2, 2000);
+        marker1.addStation(3, 2000);
+        marker1.addStation(4, 2000);
+
+L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco1, {
+    color: 'green'
+}).addTo(map);
+
+
+var marker2 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco2,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+marker2.addStation(1, 2000);
+marker2.addStation(2, 2000);
+marker2.addStation(3, 2000);
+marker2.addStation(4, 2000);
+
+L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco2, {
+    color: 'yellow'
+}).addTo(map);
+
+
+var marker3 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco3,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+marker3.addStation(1, 2000);
+marker3.addStation(2, 2000);
+marker3.addStation(3, 2000);
+marker3.addStation(4, 2000);
+
+L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco3, {
+    color: 'pink'
+}).addTo(map);
+
+
+var marker4 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco4,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+marker4.addStation(1, 2000);
+marker4.addStation(2, 2000);
+marker4.addStation(3, 2000);
+marker4.addStation(4, 2000);
+
+L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco4, {
+    color: 'red'
+}).addTo(map);
+
+
+var marker5 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco5,
+    10000, {
+        autostart: true
+    }).addTo(map);
+
+marker5.addStation(1, 2000);
+marker5.addStation(2, 2000);
+marker5.addStation(3, 2000);
+marker5.addStation(4, 2000);
+
+L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco5, {
+    color: 'purple'
+}).addTo(map);
+
+
+var marker6 = L.Marker.movingMarker(
+    barcelonePerpignanPauBordeauxMarseilleMonaco6,
+    10000, {
+        autostart: true
+    }).addTo(map);
+// map.addlayer  隐藏追加
+// map.removeLayer()  移除
+marker6.addStation(1, 2000);
+marker6.addStation(2, 2000);
+marker6.addStation(3, 2000);
+marker6.addStation(4, 2000);
+
+dispLayer=L.polyline(barcelonePerpignanPauBordeauxMarseilleMonaco6, {
+    color: 'black'
+}).addTo(map);
+
+// startFeatureFlash();
+//         /**开始闪烁
+//         */
+//         function startFeatureFlash() {
+//             //flag为ture时，图形消失；反之，图形显现
+//             var flag = true;
+//             //开启计时器
+//             id = setInterval(function () {
+//                 if (flag) {
+//                     //移除图形
+//                     map.removeLayer(dispLayer);
+//                     flag = false;
+//                 }
+//                 else {
+//                     //添加图形
+//                     map.addLayer(dispLayer);
+//                     flag = true;
+//                 }
+//             }, 500);
+//         }
+         
+        var baseLayers = {
+            '高德': L.tileLayer('http://wprd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}', {
+                maxZoom: 18,
+                attribution:"Sputnik Layer"
+            }),
+ 
+            "CartoDB Positron": L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }),
+ 
+            "OSM": L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }).addTo(map),
+ 
+            "OpenTopoMap": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }),
+        };
+ 
+        var layerControl = L.control.layers(baseLayers, {}, {
+            position: 'topleft',
+            collapsed: true
+        }).addTo(map);
+
+
+</script>
+</html>
